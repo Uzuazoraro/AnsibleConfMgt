@@ -19,7 +19,7 @@ Check your Ansible version by running `ansible --version`
 5.	Test your setup by making some change in README.MD file in master branch and make sure that builds starts automatically and Jenkins saves the files (build artifacts) in following folder
 `ls /var/lib/jenkins/jobs/ansible/builds/<build_number>/archive/`		
 
-Step 2 – Prepare your development environment using Visual Studio Code
+## Step 2 – Prepare your development environment using Visual Studio Code
 1.	First part of ‘DevOps’ is ‘Dev’, which means you will require to write some codes and you shall have proper tools that will make your coding and debugging comfortable – you need an Integrated development environment (IDE) or Source-code Editor. There is a plethora of different IDEs and Source-code Editors for different languages with their own advantages and drawbacks, you can choose whichever you are comfortable with, but we recommend one free and universal editor that will fully satisfy your needs – Visual Studio Code (VSC), you can get it here.
 2.	After you have successfully installed VSC, configure it to connect to your newly created GitHub repository.
 3.	Clone down your ansible-config-mgt repo to your Jenkins-Ansible instance
@@ -28,7 +28,7 @@ git clone <ansible-config-mgt repo link>
 ## BEGIN ANSIBLE DEVELOPMENT
 
 1.	In your ansible-config-mgt GitHub repository, create a new branch that will be used for development of a new feature.
-Tip: Give your branches descriptive and comprehensive names, for example, if you use Jira (https://www.atlassian.com/software/jira) or Trello (https://trello.com/) as a project management tool – include ticket number (e.g. PRJ-145) in the name of your branch and add a topic and a brief description what this branch is about – a bugfix, hotfix, feature, release (e.g. feature/prj-145-lvm)
+Tip: Give your branches descriptive and comprehensive names, for example, if you use Jira [https://www.atlassian.com/software/jira] or Trello [https://trello.com/] as a project management tool – include ticket number (e.g. PRJ-145) in the name of your branch and add a topic and a brief description what this branch is about – a bugfix, hotfix, feature, release (e.g. feature/prj-145-lvm)
 2.	Checkout the newly created feature branch to your local machine and start building your code and directory structure
 3.	Create a directory and name it playbooks – it will be used to store all your playbook files.
 4.	Create a directory and name it inventory – it will be used to keep your hosts organised.
@@ -40,8 +40,8 @@ An Ansible inventory file defines the hosts and groups of hosts upon which comma
 Save below inventory structure in the inventory/dev file to start configuring your development servers. Ensure to replace the IP addresses according to your own setup.
 Note: Ansible uses TCP port 22 by default, which means it needs to ssh into target servers from Jenkins-Ansible host – for this you can implement the concept of ssh-agent. Now you need to import your key into ssh-agent:
 To learn how to setup SSH agent and connect VS Code to your Jenkins-Ansible instance, please see this video:
-•	For Windows users – ssh-agent on windows (https://www.youtube.com/watch?v=OplGrY74qog)
-•	For Linux users – ssh-agent on linux (https://www.youtube.com/watch?v=OplGrY74qog)
+•	For Windows users – ssh-agent on windows [https://www.youtube.com/watch?v=OplGrY74qog]
+•	For Linux users – ssh-agent on linux [https://www.youtube.com/watch?v=OplGrY74qog]
 `ssh-agent`
 eval `ssh-agent -s`
 `cd downloads`
@@ -99,13 +99,14 @@ Update your playbooks/common.yml file with following code:
       apt:
         name: wireshark
         state: latest
+
 Examine the code above and try to make sense out of it. This playbook is divided into two parts, each of them is intended to perform the same task: install wireshark utility (or make sure it is updated to the latest version) on your RHEL 8 and Ubuntu servers. It uses root user to perform this task and respective package manager: yum for RHEL 8 and apt for Ubuntu.
 Feel free to update this playbook with following tasks:
 •	Create a directory and a file inside it
 •	Change timezone on all servers
 •	Run some shell script
 •	…
-For a better understanding of Ansible playbooks – watch this video from RedHat (https://www.youtube.com/watch?v=ZAdJ7CdN7DY) and read this article (https://www.redhat.com/en/topics/automation/what-is-an-ansible-playbook).
+For a better understanding of Ansible playbooks – watch this video from RedHat [https://www.youtube.com/watch?v=ZAdJ7CdN7DY] and read this article [https://www.redhat.com/en/topics/automation/what-is-an-ansible-playbook].
 
 ## Step 6 – Update GIT with the latest code
 
@@ -146,7 +147,7 @@ ANSIBLE REFACTORING AND STATIC ASSIGNMENTS (IMPORTS AND ROLES)
 
 Side Self Study: For better understanding or Ansible artifacts re-use – read this article [https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse.html]
 
-Code Refactoring
+## Code Refactoring
 Refactoring is a general term in computer programming. It means making changes to the source code without changing expected behaviour of the software. The main idea of refactoring is to enhance code readability, increase maintainability and extensibility, reduce complexity, add proper comments without affecting the logic.
 In your case, you will move things around a little bit in the code, but the overall state of the infrastructure remains the same.
 Let us see how you can improve your Ansible code!
@@ -187,4 +188,40 @@ Most Ansible users learn the one-file approach first. However, breaking tasks up
 
 The code above uses built in import_playbook Ansible module.
 
+5.	Run ansible-playbook command against the dev environment
+
+Since you need to apply some tasks to your dev servers and wireshark is already installed – you can go ahead and create another playbook under static-assignments and name it common-del.yml. In this playbook, configure deletion of wireshark utility.
+
+---
+- name: update web and nfs servers
+  hosts: webservers, nfs
+  remote_user: ec2-user
+  become: yes
+  become_user: root
+  tasks:
+  - name: delete wireshark
+    yum:
+      name: wireshark
+      state: removed
+
+- name: update LB and DB servers
+  hosts: lb, db
+  remote_user: ubuntu
+  become: yes
+  become_user: root
+  tasks:
+  - name: delete wireshark
+    apt:
+      name: wireshark-qt
+      state: absent
+      autoremove: yes
+      purge: yes
+      autoclean: yes
+
+update site.yml with - import_playbook: ../static-assignments/common-del.yml instead of common.yml and run it against dev servers:
+cd /home/ubuntu/ansible-config-mgt/
+
+ansible-playbook -i inventory/dev.yml playbooks/site.yaml
+Make sure that wireshark is deleted on all the servers by running wireshark --version
+Now you have learned how to use import_playbooks module and you have a ready solution to install/delete packages on multiple servers with just one command.
 
