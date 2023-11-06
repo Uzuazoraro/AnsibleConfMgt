@@ -1,6 +1,6 @@
 ---
 # Variable setup.
-- name: Include OS-specific variables.
+/*- name: Include OS-specific variables.
   include_vars: "{{ ansible_os_family }}.yml"
 
 - name: Define nginx_user.
@@ -29,9 +29,23 @@
 
 # Vhost configuration.
 - import_tasks: vhosts.yml
-
+*/
 # Nginx setup.
-- name: Copy nginx configuration in place.
+# tasks file for nginxRole
+- name: Install nginx
+  become: yes
+  apt:
+    name: nginx
+    state: present
+
+
+- name: start nginx
+  become: yes
+  service:
+    name: nginx
+    state: started
+
+/*- name: Copy nginx configuration in place.
   template:
     src: "{{ nginx_conf_template }}"
     dest: "{{ nginx_conf_file_path }}"
@@ -46,3 +60,4 @@
     name: nginx
     state: "{{ nginx_service_state }}"
     enabled: "{{ nginx_service_enabled }}"
+*/
