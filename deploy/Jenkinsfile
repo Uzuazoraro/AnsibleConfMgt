@@ -4,7 +4,7 @@ pipeline {
 environment { 
   ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg" }
 
- parameters {
+parameters {
       string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     }
  
@@ -15,32 +15,32 @@ stages {
       dir("${WORKSPACE}") { 
         deleteDir() 
         } 
-    } 
+      } 
+    }
   }
-}
   stage('Checkout SCM') {
     steps {
       git branch: 'feature/jenkinspipeline-stages', credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', url: 'https://github.com/Uzuazoraro/AnsibleConfMgt.git'
+    }
   }
-}
 
   stage('Prepare Ansible For Execution') {
     steps {
       sh 'echo ${WORKSPACE}'
       sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'
       sh 'export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg'
+    }
   }
-}
 
   stage('Run Ansible Playbook') {
     steps {
       ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', playbook: 'deploy/jenkinsfile', vaultTmpPath: ''
+    }
   }
-}
 
   stage('Clean Workspace after build') {
     steps {
       cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
+    }
   }
-}
 }
