@@ -5,7 +5,7 @@ environment {
   ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg" }
 
 parameters {
-      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+      string defaultValue: 'dev', description: 'This is the inventory file for the environment to deploy configuration', name: 'inventory'
     }
  
 stages { 
