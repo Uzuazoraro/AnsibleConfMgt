@@ -31,7 +31,7 @@ stages {
   }
   stage('Run Ansible Playbook') {
     steps {
-      ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', playbook: 'deploy/jenkinsfile', vaultTmpPath: ''
+      ansiblePlaybook become: true, colorized: true, credentialsId: 'b1cc1bb0-19a8-441b-9170-27cba1c9655d', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/dev.yml', playbook: 'playbooks/site.yml', vaultTmpPath: ''
     }
   }
   stage('Clean Workspace after build') {
