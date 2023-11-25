@@ -5,7 +5,7 @@ environment {
   ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg" }
 
 parameters {
-      string defaultValue: 'dev', description: 'This is the inventory file for the environment to deploy configuration', name: 'inventory'
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     }
  
 stages { 
@@ -31,7 +31,7 @@ stages {
   }
   stage('Run Ansible Playbook') {
     steps {
-      ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory/dev.yml', playbook: 'playbooks/site.yml', vaultTmpPath: ''
+      ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', inventory: '${inventory}', playbook: 'playbooks/site.yml', vaultTmpPath: ''
     }
   }
   stage('Clean Workspace after build') {
