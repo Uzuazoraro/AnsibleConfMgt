@@ -8,14 +8,7 @@ parameters {
       string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     }
 
-
 stages { 
-
-  stage("parameter") {
-    steps {
-      echo "Hello, ${inventory}, various environments"
-    }
-  }
 
   stage('Initial cleanup') { 
     steps { 
@@ -31,6 +24,7 @@ stages {
       git branch: 'feature/jenkinspipeline-stages', credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', url: 'https://github.com/Uzuazoraro/AnsibleConfMgt.git'
     }
   }
+
   stage('Prepare Ansible For Execution') {
     steps {
       sh 'echo ${WORKSPACE}'
@@ -38,11 +32,13 @@ stages {
       sh 'export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg'
     }
   }
+
   stage('Run Ansible Playbook') {
     steps {
       ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', inventory: '${inventory}', playbook: 'playbooks/site.yml', vaultTmpPath: ''
     }
   }
+
   stage('Clean Workspace after build') {
     steps {
       cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
