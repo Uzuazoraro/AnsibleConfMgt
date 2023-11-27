@@ -5,7 +5,7 @@ environment {
   ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg" }
 
 parameters {
-      string($(name): 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     }
  
 stages { 
@@ -15,6 +15,12 @@ stages {
         deleteDir() 
         } 
       } 
+    }
+  }
+
+  stage('parameter') {
+    steps {
+      echo "Hello, ${inventory}, various environments."
     }
   }
   stage('Checkout SCM') {
