@@ -7,8 +7,16 @@ environment {
 parameters {
       string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
     }
- 
+
+
 stages { 
+
+  stage('parameter') {
+    steps {
+      echo "Hello, ${inventory}, various environments."
+    }
+  }
+
   stage('Initial cleanup') { 
     steps { 
       dir("${WORKSPACE}") { 
@@ -18,11 +26,6 @@ stages {
     }
   }
 
-  stage('parameter') {
-    steps {
-      echo "Hello, ${inventory}, various environments."
-    }
-  }
   stage('Checkout SCM') {
     steps {
       git branch: 'feature/jenkinspipeline-stages', credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', url: 'https://github.com/Uzuazoraro/AnsibleConfMgt.git'
