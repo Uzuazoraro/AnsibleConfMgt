@@ -11,9 +11,9 @@ parameters {
 
 stages { 
 
-  stage('parameter') {
+  stage("parameter") {
     steps {
-      echo "Hello, ${inventory}, various environments."
+      echo "Hello, ${inventory}, various environments"
     }
   }
 
