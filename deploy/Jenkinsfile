@@ -1,50 +1,46 @@
-pipeline { 
 
+pipeline {
     agent any
 
-    environment { 
-        ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg" 
-    }
-
-    parameters {
-  string defaultValue: 'dev', description: 'This is the inventory file for the environment to deploy configuration', name: 'inventory'
-}
-
-
-    stages { 
-
-        stage('Initial cleanup') { 
-          steps { 
-            dir("${WORKSPACE}") { 
-              deleteDir() 
-              } 
-            } 
-          }
-        }
-
-        stage('Checkout SCM') {
-          steps {
-            git branch: 'feature/jenkinspipeline-stages', credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', url: 'https://github.com/Uzuazoraro/AnsibleConfMgt.git'
-          }
-        }
-
-        stage('Prepare Ansible For Execution') {
-          steps {
-            sh 'echo ${WORKSPACE}'
-            sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'
-            sh 'export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg'
-          }
-        }
-
-        stage('Run Ansible Playbook') {
-          steps {
-            ansiblePlaybook become: true, colorized: true, credentialsId: '62b9ff22-34f7-46cc-9e39-e7a167788af4', disableHostKeyChecking: true, installation: 'ansible2', inventory: '${inventory}', playbook: 'playbooks/site.yml', vaultTmpPath: ''
-          }
-        }
-
-        stage('Clean Workspace after build') {
-          steps {
-            cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
-          }
+  stages {
+    stage('Build') {
+      steps {
+        script {
+          sh 'echo "Building Stage"'
         }
       }
+    }
+
+    stage('Test') {
+      steps {
+        script {
+          sh 'echo "Testing Stage"'
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        script {
+          sh 'echo "Packaging Stage"'
+        }
+      }
+    }
+
+    stage('Deploy') {
+      steps {
+        script {
+          sh 'echo "Deploying Stage"'
+        }
+      }
+    }
+
+    stage('Clean Up') {
+      steps {
+        script {
+          sh 'echo "Cleaning Stage"'
+        }
+      }
+    }
+    }
+}
