@@ -1,45 +1,48 @@
 pipeline {
-    agent any
+  agent any
+
+  environment {
+      ANSIBLE_CONFIG="${WORKSPACE}/deploy/ansible.cfg"
+    }
+
+  parameters {
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+    }
+
 
   stages {
-    stage('Build') {
-      steps {
-        script {
-          sh 'echo "Building Stage"'
+      stage("Initial cleanup") {
+          steps {
+            dir("${WORKSPACE}") {
+              deleteDir()
+            }
+          }
         }
-      }
-    }
 
-    stage('Test') {
-      steps {
-        script {
-          sh 'echo "Testing Stage"'
-        }
-      }
-    }
+      stage('Checkout SCM') {
+         steps{
+            git branch: 'feature/jenkinspipeline-stages', credentialsId: 'key-pair', url: 'https://github.com/Uzuazoraro/AnsibleConfMgt.git'
+         }
+       }
 
-    stage('Package') {
-      steps {
-        script {
-          sh 'echo "Packaging Stage"'
+      stage('Prepare Ansible For Execution') {
+        steps {
+          sh 'echo ${WORKSPACE}' 
+          sh 'sed -i "3 a roles_path=${WORKSPACE}/roles" ${WORKSPACE}/deploy/ansible.cfg'  
         }
-      }
-    }
+     }
 
-    stage('Deploy') {
-      steps {
-        script {
-          sh 'echo "Deploying Stage"'
-        }
+      stage('Run Ansible playbook') {
+        steps {
+           ansiblePlaybook become: true, colorized: true, credentialsId: 'key-pair', disableHostKeyChecking: true, installation: 'ansible1', inventory: 'inventory/dev.yml', playbook: 'playbooks/site.yml'
+         }
       }
-    }
 
-    stage('Clean Up') {
-      steps {
-        script {
-          sh 'echo "Cleaning Stage"'
+      stage('Clean Workspace after build') {
+        steps{
+          cleanWs(cleanWhenAborted: true, cleanWhenFailure: true, cleanWhenNotBuilt: true, cleanWhenUnstable: true, deleteDirs: true)
         }
       }
-    }
-    }
+   }
+
 }
