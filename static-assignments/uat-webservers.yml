@@ -1,4 +1,8 @@
 ---
-- hosts: uat-webservers
+/*- hosts: uat-webservers
   roles:
      - webserver
+*/
+- hosts: artifactory
+  roles:
+     - artifactory
